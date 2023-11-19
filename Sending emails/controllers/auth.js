@@ -1,14 +1,16 @@
 const User = require('../models/user');
+const formData = require('form-data');
 const bcrypt = require('bcryptjs')
-const nodeMailer = require('nodemailer')
-const sendgridTransport = require('nodemailer-sendgrid-transport')
-
-const transporter = nodeMailer.createTransport(sendgridTransport({
-  auth:{
-    api_key:
-    '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'
-  }
-}))
+const Mailgun = require('mailgun.js');
+const mailgun = new Mailgun(formData)
+// pubkey-7d86511665a66eeb514f481229ea96c7
+// const transporter = nodeMailer.createTransport(sendgridTransport({
+//   auth:{
+//     api_key:
+//     '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'
+//   }
+// }))
+const mg = mailgun.client({username: 'api', key:'7d86511665a66eeb514f481229ea96c7'});
 exports.getLogin = (req, res, next) => {
   let message = req.flash('error');
   if (message.length > 0) {
@@ -92,18 +94,27 @@ exports.postSignup=(req,res , next)=>{
   })
   .then(result=>{
     res.redirect('/login')
-   return transporter.sendMail({
-      to:email,
-      from:"myemail.com",
-      subject:"singup Complete",
-      html:'<h1> Signed UP</h1>'
+    console.log("enter")
+   return mg.messages.create('surajgautam1111@gmail.com', {
+    from: "Excited User <mailgun@surajgautam1111@gmail.com>",
+    to: ["surajgautam012345@gmail.com"],
+    subject: "Hello",
+    text: "Testing some Mailgun awesomeness!",
+    html: "<h1>Testing some Mailgun awesomeness!</h1>"
+   
+  })
 
-    })
-    .catch(err => console.log(err))
+  .then(msg => {
+    console.log("finish")
+    console.log(msg)
+  })
  
   })
  
-  .catch(err=>console.log(err))
+  .catch(err=>{
+    console.log('error')
+    console.log(err)
+  })
 
 }
 
